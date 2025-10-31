@@ -84,13 +84,18 @@ export default function HomePage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button
+            <Link href="/download" className="no-underline">
+                        <Button
               size="lg"
               className="bg-teal-500 hover:bg-teal-600 text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-teal-500/30 hover:shadow-teal-500/50 transition-all hover:scale-105"
             >
               <Download className="w-5 h-5 mr-2" />
               Download ISO
             </Button>
+            
+            
+            </Link>
+
             <Link href="/guide" className="no-underline">
               <Button
                 size="lg"
