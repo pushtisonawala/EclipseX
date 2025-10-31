@@ -1,0 +1,31 @@
+{
+  "PersonPerformingSanitization": {
+    "Name": "Bob Smith",
+    "Title": "IT Support Technician",
+    "Organization": "TechCorp Ltd.",
+    "Location": "Delhi, India", 
+    "Phone": "+91-9876543212"
+  },
+  "MediaInformation": {
+    "MakeVendor": "SanDisk",
+    "Model": "Ultra USB 3.0",
+    "SerialNumber": "SD-USB-789012",
+    "MediaPropertyNumber": "IT-2025-047",
+    "MediaType": "USB Flash Drive",
+    "Source": "Employee Workstation - Asset #WS-334",
+    "Classification": "Internal Use Only",
+    "DataBackedUp": "No"
+  },
+  "SanitizationDetails": {
+    "MethodType": "Clear",
+    "MethodUsed": "Single Pass Overwrite",
+    "ToolUsed": "Windows Format Utility",
+    "VerificationMethod": "Quick Scan",
+    "NumberOfPasses": "1",
+    "PostSanitizationClassification": "Unclassified"
+  },
+  "MediaDestination": {
+    "Option": "Reuse",
+    "Details": "Returned to IT inventory for redistribution"
+  }
+}

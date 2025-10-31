@@ -1,0 +1,43 @@
+{
+  "PersonPerformingSanitization": {
+    "Name": "Dr. Sarah Chen",
+    "Title": "Senior Data Security Engineer",
+    "Organization": "Enterprise Security Solutions Corp",
+    "Location": "San Francisco, CA",
+    "Phone": "+1-415-555-0123"
+  },
+  "MediaInformation": {
+    "MakeVendor": "Samsung",
+    "Model": "980 PRO 2TB",
+    "SerialNumber": "S6BZNF0T123456A",
+    "MediaPropertyNumber": "NVME-20251030-ENT",
+    "MediaType": "NVME Drive",
+    "Source": "Enterprise Server - /dev/nvme0n1",
+    "Classification": "Confidential",
+    "DataBackedUp": "Yes"
+  },
+  "SanitizationDetails": {
+    "MethodType": "Purge",
+    "MethodUsed": "NVMe Crypto Erase",
+    "ToolUsed": "Hackman Enterprise NVME Tool v2.0",
+    "VerificationMethod": "Hardware-level Verification",
+    "NumberOfPasses": "1",
+    "PostSanitizationClassification": "Unclassified"
+  },
+  "MediaDestination": {
+    "Option": "Secure Destruction",
+    "Details": "Sent to certified e-waste destruction facility"
+  },
+  "EnterpriseMetadata": {
+    "StartTime": "2025-10-30 23:13:14",
+    "EndTime": "2025-10-30 23:13:44",
+    "SectorsWiped": 3907029168,
+    "VerificationHash": "4c7aa009976c88e6",
+    "Interface": "NVMe PCIe 4.0",
+    "ComplianceStandards": [
+      "NIST SP 800-88",
+      "DoD 5220.22-M",
+      "ISO 27001"
+    ]
+  }
+}

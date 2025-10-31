@@ -1,0 +1,31 @@
+{
+  "PersonPerformingSanitization": {
+    "Name": "Alice Johnson",
+    "Title": "Senior Security Analyst",
+    "Organization": "SecureTech Solutions Inc.",
+    "Location": "Mumbai, India",
+    "Phone": "+91-9876543211"
+  },
+  "MediaInformation": {
+    "MakeVendor": "Western Digital",
+    "Model": "WD Blue 1TB",
+    "SerialNumber": "WD-WCAZA1234567",
+    "MediaPropertyNumber": "IT-2025-046",
+    "MediaType": "Hard Disk Drive",
+    "Source": "Server Room - Asset #SRV-001",
+    "Classification": "Top Secret",
+    "DataBackedUp": "Yes"
+  },
+  "SanitizationDetails": {
+    "MethodType": "Purge",
+    "MethodUsed": "DoD 5220.22-M (3-pass)",
+    "ToolUsed": "DBAN v2.3.0",
+    "VerificationMethod": "Full Surface Scan",
+    "NumberOfPasses": "3",
+    "PostSanitizationClassification": "Unclassified"
+  },
+  "MediaDestination": {
+    "Option": "Secure Destruction",
+    "Details": "Iron Mountain Secure Shredding Facility, Mumbai"
+  }
+}

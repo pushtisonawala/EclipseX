@@ -1,0 +1,15 @@
+certifi==2025.8.3
+cffi==2.0.0
+charset-normalizer==3.4.3
+colorama==0.4.6
+cryptography==45.0.7
+idna==3.10
+pillow==11.3.0
+pycparser==2.23
+pypdf2==3.0.1
+qrcode==8.2
+reportlab==4.4.3
+requests==2.32.5
+signer==0.0.1
+urllib3==2.5.0
+

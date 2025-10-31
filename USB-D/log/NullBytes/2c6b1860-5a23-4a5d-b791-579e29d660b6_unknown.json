@@ -1,0 +1,33 @@
+{
+    "PersonPerformingSanitization": {
+        "Name": "root",
+        "Title": "System Operator",
+        "Organization": "nepenthe",
+        "Location": "Linux-6.12.43+deb13-amd64-x86_64-with-glibc2.41",
+        "Phone": ""
+    },
+    "MediaInformation": {
+        "MakeVendor": "",
+        "Model": "",
+        "SerialNumber": "",
+        "MediaPropertyNumber": "",
+        "MediaType": "usb",
+        "Source": "/dev/sda",
+        "Classification": "Confidential",
+        "DataBackedUp": "Yes"
+    },
+    "SanitizationDetails": {
+        "MethodType": "Clear",
+        "MethodUsed": "quick",
+        "NumberOfPasses": "1",
+        "ToolUsed": "NIST-Aware Wiper v1.0.0",
+        "VerificationMethod": "none",
+        "PostSanitizationClassification": "Failed"
+    },
+    "MediaDestination": {
+        "Option": "Destroy",
+        "Details": "Log file: /var/log/NullBytes/wipe_sda_1758267316.log"
+    },
+    "uuid": "2c6b1860-5a23-4a5d-b791-579e29d660b6",
+    "device": "unknown"
+}
