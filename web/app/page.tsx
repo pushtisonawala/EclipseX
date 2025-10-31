@@ -54,12 +54,6 @@ export default function HomePage() {
             <a href="#about" className="text-slate-300 hover:text-teal-400 transition-colors">
               About
             </a>
-            <a href="/business-model" className="text-slate-300 hover:text-teal-400 transition-colors">
-              Business-Model
-            </a>
-            <a href="/educate-users" className="text-slate-300 hover:text-teal-400 transition-colors">
-              Educate Users
-            </a>
           </motion.div>
         </nav>
       </header>
