@@ -18,6 +18,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import Link from "next/link"
 
 export default function HomePage() {
   return (
@@ -90,14 +91,16 @@ export default function HomePage() {
               <Download className="w-5 h-5 mr-2" />
               Download ISO
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-teal-500/30 text-teal-400 hover:bg-teal-500/10 px-8 py-6 text-lg rounded-xl backdrop-blur-sm bg-transparent"
-            >
-              <BookOpen className="w-5 h-5 mr-2" />
-              Learn More
-            </Button>
+            <Link href="/guide" className="no-underline">
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-teal-500/30 text-teal-400 hover:bg-teal-500/10 px-8 py-6 text-lg rounded-xl backdrop-blur-sm bg-transparent"
+              >
+                <BookOpen className="w-5 h-5 mr-2" />
+                Learn More
+              </Button>
+            </Link>
           </div>
         </motion.div>
 
@@ -188,7 +191,7 @@ export default function HomePage() {
               <Shield className="w-12 h-12 text-teal-400 mb-4" />
               <h3 className="text-2xl font-semibold text-white mb-4">Enterprise Ready</h3>
               <p className="text-slate-400 leading-relaxed">
-                Built for organizations that require certified data destruction with comprehensive 
+                Built for organizations that require certified data destruction with comprehensive
                 audit trails and compliance reporting for regulatory requirements.
               </p>
             </motion.div>
@@ -203,7 +206,7 @@ export default function HomePage() {
               <Lock className="w-12 h-12 text-teal-400 mb-4" />
               <h3 className="text-2xl font-semibold text-white mb-4">Military-Grade Security</h3>
               <p className="text-slate-400 leading-relaxed">
-                Implements advanced cryptographic algorithms and multiple overwrite patterns 
+                Implements advanced cryptographic algorithms and multiple overwrite patterns
                 to ensure data is completely and irreversibly destroyed.
               </p>
             </motion.div>
@@ -218,9 +221,9 @@ export default function HomePage() {
           >
             <h3 className="text-2xl font-semibold text-white mb-4">Why Choose SecureWipe?</h3>
             <p className="text-slate-300 leading-relaxed max-w-3xl mx-auto">
-              SecureWipe provides a comprehensive solution for organizations looking to safely dispose 
-              of IT assets while maintaining the highest security standards. Our bootable USB approach 
-              ensures complete system independence, preventing any data recovery attempts and meeting 
+              SecureWipe provides a comprehensive solution for organizations looking to safely dispose
+              of IT assets while maintaining the highest security standards. Our bootable USB approach
+              ensures complete system independence, preventing any data recovery attempts and meeting
               international compliance standards including NIST SP 800-88.
             </p>
           </motion.div>
