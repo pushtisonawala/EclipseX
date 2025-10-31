@@ -77,7 +77,7 @@ const sections = [
 export default function BusinessModelPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 relative">
-      <div className="w-full flex justify-start mb-6 px-4 md:px-12">
+      <div className="w-full flex justify-start items-center gap-4 mb-6 px-4 md:px-12">
         <Link href="/" className="no-underline">
           <Button
             variant="outline"
@@ -85,6 +85,15 @@ export default function BusinessModelPage() {
           >
             <ChevronRight className="w-5 h-5 rotate-180" />
             Back to Home
+          </Button>
+        </Link>
+        <Link href="/guide" className="no-underline">
+          <Button
+            variant="outline"
+            className="border-cyan-500/40 text-cyan-400 hover:bg-cyan-500/10 hover:text-white active:text-white focus:text-white px-6 py-3 text-base rounded-xl shadow backdrop-blur-sm flex items-center gap-2"
+          >
+            <BookOpen className="w-5 h-5" />
+            How to Use
           </Button>
         </Link>
       </div>
