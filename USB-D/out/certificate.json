@@ -2,8 +2,8 @@
   "PersonPerformingSanitization": {
     "Name": "root",
     "Title": "System Operator",
-    "Organization": "nepenthe",
-    "Location": "Linux-6.12.43+deb13-amd64-x86_64-with-glibc2.41",
+    "Organization": "ayus",
+    "Location": "Linux-6.14.0-29-generic-x86_64-with-glibc2.39",
     "Phone": ""
   },
   "MediaInformation": {
@@ -12,7 +12,7 @@
     "SerialNumber": "",
     "MediaPropertyNumber": "",
     "MediaType": "usb",
-    "Source": "/dev/sdb",
+    "Source": "/dev/sda",
     "Classification": "Confidential",
     "DataBackedUp": "Yes"
   },
@@ -26,8 +26,8 @@
   },
   "MediaDestination": {
     "Option": "Destroy",
-    "Details": "Log file: /var/log/NullBytes/wipe_sdb_1758397181.log"
+    "Details": "Log file: /var/log/NullBytes/wipe_sda_1761912297.log"
   },
-  "uuid": "ccb089fe-44ef-4bc6-b799-2d6868a84fcf",
+  "uuid": "b1322a06-c5b1-4dba-871f-278c1bf556fb",
   "device": "unknown"
 }
