@@ -455,7 +455,7 @@ def write_certificate(device, method, log_file, status, verified_clean, extra):
             "MethodType": "Purge" if method == "auto" else "Clear",
             "MethodUsed": method,
             "NumberOfPasses": "3" if method == "shred" else "1",
-            "ToolUsed": f"NIST-Aware Wiper v{extra['execution_metadata']['version']}",
+            "ToolUsed": f"NIST-Aware Wiper v{extra.get('execution_metadata', {}).get('version', VERSION)}",
             "VerificationMethod": extra.get("verification_method", "none"),
             "PostSanitizationClassification": "Unclassified" if verified_clean else "Failed"
         },
@@ -495,21 +495,66 @@ def wipe_android():
         return "failed", False, {}
 
     meta = collect_android_metadata()
+
+    sysmeta = collect_system_metadata()
+    extra_data = {
+        "system_metadata": sysmeta,
+        "device_metadata": meta,
+        "verification_method": "none",
+        "execution_metadata": {
+            "version": VERSION,
+            "script_hash": script_sha256()
+        }
+    }
+    # --- END OF FIX ---
+
     if meta['bootloader_state'].strip() == "green":
         status = "bootloader_locked"
+
+        # --- START OF NEW FEATURE: ADB RECOVERY WIPE ---
+        try_recovery = messagebox.askyesno(
+            "Bootloader Locked",
+            f"{meta['manufacturer']} {meta['model']}\nBootloader is LOCKED. Fastboot wipe is not possible.\n\n"
+            "Do you want to attempt a non-Fastboot 'Recovery Mode' wipe?\n\n"
+            "WARNING: This is a standard factory reset and is less secure than a Fastboot erase. "
+            "It may not work on all devices."
+        )
+
+        if not try_recovery:
+            cert_path = write_certificate(
+                device="android",
+                method="none",
+                log_file="/tmp/wipe_android.log",
+                status=status,
+                verified_clean=False,
+                extra=extra_data
+            )
+            messagebox.showerror(
+                "Wipe Cancelled",
+                f"Bootloader is locked and recovery wipe was declined.\nMetadata saved at {cert_path}"
+            )
+            return status, False, meta
+
+        messagebox.showinfo("Recovery Wipe", "Attempting to reboot to recovery and trigger wipe...\nYour device will restart.")
+        run_cmd("adb reboot recovery")
+        time.sleep(5)
+
+        status = "android_recovery_wipe_attempted"
         cert_path = write_certificate(
             device="android",
-            method="auto",
+            method="adb_recovery_wipe",
             log_file="/tmp/wipe_android.log",
             status=status,
-            verified_clean=False,
-            extra={"device_metadata": meta}
+            verified_clean=True,
+            extra=extra_data
         )
-        messagebox.showerror(
-            "Bootloader Locked",
-            f"{meta['manufacturer']} {meta['model']}\nBootloader LOCKED.\nCannot wipe securely.\nMetadata saved at {cert_path}"
-        )
-        return status, False, meta
+
+        messagebox.showinfo("Recovery Wipe Sent",
+                                  f"The command to factory reset via recovery has been sent.\n"
+                                  f"The device will now restart and should wipe itself.\n"
+                                  f"Certificate saved at {cert_path}")
+        return status, True, meta
+        # --- END OF NEW FEATURE ---
 
     messagebox.showinfo("Rebooting", "Device will reboot to fastboot mode...")
     run_cmd("adb reboot bootloader")
@@ -530,7 +575,7 @@ def wipe_android():
             log_file="/tmp/wipe_android.log",
             status=status,
             verified_clean=False,
-            extra={"device_metadata": meta}
+            extra=extra_data
         )
         messagebox.showerror("Timeout", f"Device did not enter fastboot mode.\nMetadata saved at {cert_path}")
         return status, False, meta
@@ -546,7 +591,7 @@ def wipe_android():
         log_file="/tmp/wipe_android.log",
         status=status,
         verified_clean=True,
-        extra={"device_metadata": meta}
+        extra=extra_data
     )
 
     reboot = messagebox.askyesno("Done", f"Wipe complete.\nCertificate saved at:\n{cert_path}\nReboot now?")
@@ -562,7 +607,6 @@ class WipeApp:
     def __init__(self):
         self.root = tk.Tk()
 
-        # --- Modern Sleek Theme Colors ---
         BG_COLOR = "#0f0f0f"  # Pure dark
         CARD_BG = "#1a1a1a"  # Card background
         FG_COLOR = "#e0e0e0"  # Light gray text
@@ -577,7 +621,7 @@ class WipeApp:
         ACCENT_WARNING = "#f59e0b"  # Modern amber
         SELECT_FG_COLOR = "#ffffff"
         GLOW_SHADOW = "#6366f1"
-        
+
         self.root.configure(bg=BG_COLOR)
         self.root.title("Veri-Wipe • NIST Certified Sanitization")
         self.root.geometry("1400x900")
@@ -587,7 +631,6 @@ class WipeApp:
         self.cancel_flag = threading.Event()
         self.current_process = None
 
-        # --- Modern Sleek Style ---
         style = ttk.Style(self.root)
         style.theme_use("clam")
 
@@ -602,41 +645,41 @@ class WipeApp:
         # Frames
         style.configure('TFrame', background=BG_COLOR)
         style.configure('Card.TFrame', background=CARD_BG)
-        
+
         # Labels
-        style.configure('TLabel', 
-                        background=BG_COLOR, 
-                        foreground=FG_COLOR, 
+        style.configure('TLabel',
+                        background=BG_COLOR,
+                        foreground=FG_COLOR,
                         padding=5,
                         font=('Inter', 10))
-        
+
         style.configure('Title.TLabel',
                         background=BG_COLOR,
                         foreground=FG_COLOR,
                         font=('Inter', 32, 'bold'))
-        
+
         style.configure('Subtitle.TLabel',
                         background=BG_COLOR,
                         foreground='#999999',
                         font=('Inter', 11))
-        
+
         style.configure('CardTitle.TLabel',
                         background=CARD_BG,
                         foreground=FG_COLOR,
                         font=('Inter', 13, 'bold'))
-        
+
         style.configure('SectionLabel.TLabel',
                         background=CARD_BG,
                         foreground='#999999',
                         font=('Inter', 9, 'bold'))
-        
-        style.configure('TLabelFrame', 
-                        background=CARD_BG, 
+
+        style.configure('TLabelFrame',
+                        background=CARD_BG,
                         bordercolor=BORDER_COLOR,
                         relief='flat')
-        style.configure('TLabelFrame.Label', 
-                        background=CARD_BG, 
-                        foreground=FG_COLOR, 
+        style.configure('TLabelFrame.Label',
+                        background=CARD_BG,
+                        foreground=FG_COLOR,
                         font=('Inter', 11, 'bold'))
 
         # Radiobutton - modern flat style
@@ -741,24 +784,24 @@ class WipeApp:
         # Header Section - centered and minimal
         header = tk.Frame(self.root, bg=BG_COLOR)
         header.pack(fill='x', padx=60)
-        
+
         # Title with dot accent
         title_frame = tk.Frame(header, bg=BG_COLOR)
         title_frame.pack(anchor='w')
-        
+
         dot = tk.Label(title_frame, text="●", bg=BG_COLOR, fg=ACCENT_PRIMARY, font=('Inter', 24))
         dot.pack(side='left', padx=(0, 10))
-        
-        title_label = tk.Label(title_frame, 
-                               text="Veri-Wipe", 
-                               bg=BG_COLOR, 
+
+        title_label = tk.Label(title_frame,
+                               text="Veri-Wipe",
+                               bg=BG_COLOR,
                                fg=FG_COLOR,
                                font=('Inter', 32, 'bold'))
         title_label.pack(side='left')
-        
-        subtitle_label = tk.Label(header, 
-                                  text="NIST SP 800-88 Certified Data Sanitization", 
-                                  bg=BG_COLOR, 
+
+        subtitle_label = tk.Label(header,
+                                  text="NIST SP 800-88 Certified Data Sanitization",
+                                  bg=BG_COLOR,
                                   fg='#999999',
                                   font=('Inter', 11))
         subtitle_label.pack(anchor='w', pady=(5, 0))
@@ -770,26 +813,26 @@ class WipeApp:
         # --- Device Selection Card ---
         device_card = tk.Frame(container, bg=CARD_BG, relief='flat')
         device_card.pack(fill='x', pady=(0, 20))
-        
+
         device_inner = tk.Frame(device_card, bg=CARD_BG)
         device_inner.pack(fill='x', padx=30, pady=25)
-        
+
         device_label_frame = tk.Frame(device_inner, bg=CARD_BG)
         device_label_frame.pack(fill='x', pady=(0, 15))
-        
-        tk.Label(device_label_frame, text="Target Device", bg=CARD_BG, fg=FG_COLOR, 
+
+        tk.Label(device_label_frame, text="Target Device", bg=CARD_BG, fg=FG_COLOR,
                 font=('Inter', 13, 'bold')).pack(side='left')
-        
+
         tk.Label(device_label_frame, text="SELECT STORAGE DEVICE", bg=CARD_BG, fg='#666666',
                 font=('Inter', 9, 'bold')).pack(side='right')
-        
+
         device_controls = tk.Frame(device_inner, bg=CARD_BG)
         device_controls.pack(fill='x')
-        
+
         self.device_var = tk.StringVar()
         self.device_combo = ttk.Combobox(device_controls, textvariable=self.device_var, state='readonly')
         self.device_combo.pack(side='left', fill='x', expand=True, padx=(0, 15))
-        
+
         refresh_btn = ttk.Button(device_controls, text="Refresh", command=self.refresh_devices, style='Secondary.TButton')
         refresh_btn.pack(side='left')
 
@@ -800,25 +843,25 @@ class WipeApp:
         # Left Column - Wipe Method
         left_col = tk.Frame(columns, bg=BG_COLOR)
         left_col.pack(side='left', fill='both', expand=True, padx=(0, 10))
-        
+
         method_card = tk.Frame(left_col, bg=CARD_BG, relief='flat')
         method_card.pack(fill='both', expand=True)
-        
+
         method_inner = tk.Frame(method_card, bg=CARD_BG)
         method_inner.pack(fill='both', expand=True, padx=30, pady=25)
-        
+
         method_header = tk.Frame(method_inner, bg=CARD_BG)
         method_header.pack(fill='x', pady=(0, 15))
-        
+
         tk.Label(method_header, text="Wipe Method", bg=CARD_BG, fg=FG_COLOR,
                 font=('Inter', 13, 'bold')).pack(side='left')
-        
+
         tk.Label(method_header, text="SANITIZATION TECHNIQUE", bg=CARD_BG, fg='#666666',
                 font=('Inter', 9, 'bold')).pack(side='right')
-        
+
         self.method_frame = tk.Frame(method_inner, bg=CARD_BG)
         self.method_frame.pack(fill='both', expand=True)
-        
+
         self.method_var = tk.StringVar(value='auto')
         self.method_buttons = []
 
@@ -826,13 +869,13 @@ class WipeApp:
         desc_label = tk.Label(method_inner, text="DESCRIPTION", bg=CARD_BG, fg='#666666',
                              font=('Inter', 9, 'bold'), anchor='w')
         desc_label.pack(fill='x', pady=(15, 8))
-        
-        self.method_desc = tk.Text(method_inner, 
-                                   height=4, 
-                                   wrap='word', 
-                                   bg=TEXT_BG, 
-                                   fg='#cccccc', 
-                                   relief='flat', 
+
+        self.method_desc = tk.Text(method_inner,
+                                   height=4,
+                                   wrap='word',
+                                   bg=TEXT_BG,
+                                   fg='#cccccc',
+                                   relief='flat',
                                    borderwidth=0,
                                    highlightthickness=0,
                                    padx=15,
@@ -844,79 +887,79 @@ class WipeApp:
         # Right Column - Verification
         right_col = tk.Frame(columns, bg=BG_COLOR)
         right_col.pack(side='left', fill='both', expand=True, padx=(10, 0))
-        
+
         verify_card = tk.Frame(right_col, bg=CARD_BG, relief='flat')
         verify_card.pack(fill='both', expand=True)
-        
+
         verify_inner = tk.Frame(verify_card, bg=CARD_BG)
         verify_inner.pack(fill='both', expand=True, padx=30, pady=25)
-        
+
         verify_header = tk.Frame(verify_inner, bg=CARD_BG)
         verify_header.pack(fill='x', pady=(0, 15))
-        
+
         tk.Label(verify_header, text="Verification", bg=CARD_BG, fg=FG_COLOR,
                 font=('Inter', 13, 'bold')).pack(side='left')
-        
+
         tk.Label(verify_header, text="POST-WIPE VALIDATION", bg=CARD_BG, fg='#666666',
                 font=('Inter', 9, 'bold')).pack(side='right')
-        
+
         self.ver_frame = tk.Frame(verify_inner, bg=CARD_BG)
         self.ver_frame.pack(fill='both', expand=True)
-        
+
         self.verify_var = tk.StringVar(value='none')
         self.verify_buttons = []
 
         # Action Buttons
         actions = tk.Frame(container, bg=BG_COLOR)
         actions.pack(fill='x', pady=(20, 0))
-        
+
         left_actions = tk.Frame(actions, bg=BG_COLOR)
         left_actions.pack(side='left')
-        
-        cert_btn = ttk.Button(left_actions, text="View Certificates", 
+
+        cert_btn = ttk.Button(left_actions, text="View Certificates",
                              command=self.open_certificates, style='Success.TButton')
         cert_btn.pack(side='left')
-        
+
         right_actions = tk.Frame(actions, bg=BG_COLOR)
         right_actions.pack(side='right')
-        
-        self.cancel_btn = ttk.Button(right_actions, text="Cancel", 
+
+        self.cancel_btn = ttk.Button(right_actions, text="Cancel",
                                      command=self.cancel, state='disabled', style='Secondary.TButton')
         self.cancel_btn.pack(side='left', padx=(0, 15))
-        
-        self.start_btn = ttk.Button(right_actions, text="Start Wipe", 
+
+        self.start_btn = ttk.Button(right_actions, text="Start Wipe",
                                     command=self.start, style='Danger.TButton')
         self.start_btn.pack(side='left')
 
         # --- Log Section ---
         log_card = tk.Frame(container, bg=CARD_BG, relief='flat')
         log_card.pack(fill='both', expand=True, pady=(20, 0))
-        
+
         log_inner = tk.Frame(log_card, bg=CARD_BG)
         log_inner.pack(fill='both', expand=True, padx=30, pady=25)
-        
+
         log_header = tk.Frame(log_inner, bg=CARD_BG)
         log_header.pack(fill='x', pady=(0, 15))
-        
+
         tk.Label(log_header, text="Operation Log", bg=CARD_BG, fg=FG_COLOR,
                 font=('Inter', 13, 'bold')).pack(side='left')
-        
+
         tk.Label(log_header, text="REAL-TIME OUTPUT", bg=CARD_BG, fg='#666666',
                 font=('Inter', 9, 'bold')).pack(side='right')
-        
+
         log_container = tk.Frame(log_inner, bg=TEXT_BG)
         log_container.pack(fill='both', expand=True)
-        
+
         scrollbar = tk.Scrollbar(log_container, bg=WIDGET_BG, troughcolor=TEXT_BG)
         scrollbar.pack(side='right', fill='y')
-        
-        self.log = tk.Text(log_container, 
-                           bg=TEXT_BG, 
+
+        self.log = tk.Text(log_container,
+                           bg=TEXT_BG,
                            fg='#cccccc',
-                           relief='flat', 
-                           borderwidth=0, 
+                           relief='flat',
+                           borderwidth=0,
                            insertbackground=ACCENT_PRIMARY,
-                           selectbackground=ACCENT_PRIMARY, 
+                           selectbackground=ACCENT_PRIMARY,
                            selectforeground='white',
                            highlightthickness=0,
                            padx=15,
@@ -941,7 +984,7 @@ class WipeApp:
         self.method_buttons.clear()
 
         if device_label == 'Android (ADB)':
-            methods = [('Auto (Android Wipe)', 'auto')]
+            methods = [('Auto (Recommended)', 'auto')]
         else:
             target = device_label.split()[0]
             dtype = detect_device_type(target)
@@ -975,7 +1018,7 @@ class WipeApp:
 
     def update_method_desc(self, method):
         descs = {
-            'auto': "Automatic secure wipe using hardware-level commands (ATA Secure Erase or NVMe Sanitize). This is the fastest and most secure method. NIST category: Purge.",
+            'auto': "Automatic secure wipe. For drives, uses hardware-level commands (ATA Secure Erase or NVMe Sanitize) [Purge]. For Android, uses Fastboot erase or prompts for Recovery Wipe [Clear].",
             'zero': "Overwrites all sectors with zeros in a single pass. Simple and effective for most use cases. NIST category: Clear.",
             'random': "Overwrites all sectors with cryptographically random data. Stronger obfuscation than zero fill. NIST category: Clear.",
             'shred': "Multiple overwrite passes (default 3) with random data followed by a final zero fill pass. Most thorough software method. NIST category: Clear.",
@@ -992,7 +1035,7 @@ class WipeApp:
         self.verify_buttons.clear()
 
         if device_label == 'Android (ADB)':
-            options = [('None', 'none')]
+            options = [('None (Not applicable for Android)', 'none')]
         else:
             options = [('None', 'none'),
                        ('Sampled — Fast random block check', 'sampled'),
@@ -1003,6 +1046,8 @@ class WipeApp:
             b = ttk.Radiobutton(self.ver_frame, text=text, variable=self.verify_var, value=val)
             b.pack(anchor='w', pady=5)
             self.verify_buttons.append(b)
+            if device_label == 'Android (ADB)':
+                b.configure(state='disabled')
 
     def append_log(self, text):
         ts = datetime.now().strftime("%H:%M:%S")
@@ -1052,21 +1097,21 @@ class WipeApp:
                 viewer.title(f"Certificate: {os.path.basename(file_path)}")
                 viewer.geometry("900x700")
                 viewer.configure(bg="#0f0f0f")
-                
+
                 frame = tk.Frame(viewer, bg="#0f0f0f")
                 frame.pack(fill="both", expand=True, padx=30, pady=30)
-                
+
                 # Header
                 header = tk.Frame(frame, bg="#0f0f0f")
                 header.pack(fill='x', pady=(0, 20))
-                
+
                 tk.Label(header, text="Certificate Details", bg="#0f0f0f", fg="#e0e0e0",
                         font=('Inter', 20, 'bold')).pack(side='left')
 
                 # Content card
                 content_card = tk.Frame(frame, bg="#1a1a1a")
                 content_card.pack(fill="both", expand=True)
-                
+
                 content_inner = tk.Frame(content_card, bg="#1a1a1a")
                 content_inner.pack(fill="both", expand=True, padx=25, pady=25)
 
@@ -1095,7 +1140,7 @@ class WipeApp:
                 # Close button
                 btn_frame = tk.Frame(frame, bg="#0f0f0f")
                 btn_frame.pack(pady=(20, 0))
-                
+
                 close_btn = tk.Button(btn_frame, text="Close", command=viewer.destroy,
                                      bg="#222222", fg="#e0e0e0", font=("Inter", 10, "bold"),
                                      padx=30, pady=12, relief="flat", cursor="hand2",
@@ -1123,8 +1168,17 @@ class WipeApp:
     def unlock_ui(self):
         self.device_combo.configure(state='readonly')
         self.start_btn.configure(state='normal')
-        for btn in self.method_buttons + self.verify_buttons:
+
+        # Re-enable based on device
+        sel = self.device_combo.get()
+        for btn in self.method_buttons:
             btn.configure(state='normal')
+        for btn in self.verify_buttons:
+            if sel == 'Android (ADB)':
+                btn.configure(state='disabled')
+            else:
+                btn.configure(state='normal')
+
         self.cancel_btn.configure(state='disabled')
 
     def cancel(self):
@@ -1143,8 +1197,12 @@ class WipeApp:
             return
 
         if sel != 'Android (ADB)':
-            if not messagebox.askyesno("Confirm Wipe", 
+            if not messagebox.askyesno("Confirm Wipe",
                 f"Are you absolutely sure you want to wipe:\n\n{sel}\n\n⚠️  This action is IRREVERSIBLE and will destroy all data."):
+                return
+        else:
+             if not messagebox.askyesno("Confirm Wipe",
+                f"Are you absolutely sure you want to wipe:\n\n{sel}\n\n⚠️  This will attempt to factory reset the connected Android device."):
                 return
 
         method = self.method_var.get()
@@ -1161,9 +1219,16 @@ class WipeApp:
 
     def run_android(self):
         self.lock_ui()
-        status, verified, meta = wipe_android()
-        self.append_log(f"Android wipe finished: {status}, verified: {verified}")
-        self.unlock_ui()
+        self.append_log("Starting Android wipe process...")
+        try:
+            status, verified, meta = wipe_android()
+            self.append_log(f"Android wipe finished: {status}, verified: {verified}")
+        except Exception as e:
+            self.append_log(f"✗ UNHANDLED ANDROID ERROR: {e}")
+            self.append_log(f"Traceback: {traceback.format_exc()}")
+            messagebox.showerror("Fatal Error", f"An unexpected error occurred during the Android wipe: {e}")
+        finally:
+            self.unlock_ui()
 
     def run_wipe(self, device, method, verify):
         self.lock_ui()
@@ -1287,16 +1352,25 @@ class WipeApp:
             self.append_log(f"─── Process Finished ───")
             self.append_log(f"Certificate written to: {cert_path}")
             messagebox.showinfo("Operation Complete", f"Operation on {device} has finished.\n\nCertificate saved to:\n{cert_path}")
-            script_dir = os.path.dirname(os.path.abspath(__file__))
-            cert_tool_path = os.path.join(script_dir, "..", "Cert_Tool", "main.py")
 
-            subprocess.run([
-                "python3", cert_tool_path,
-                "--json", cert_path,
-                "--pdf-out", f"{cert_path}.pdf",
-                "--qr-out", f"{cert_path}.qr.png",
-                "--no-upload"
-            ])
+            try:
+                script_dir = os.path.dirname(os.path.abspath(__file__))
+                cert_tool_path = os.path.join(script_dir, "..", "Cert_Tool", "main.py")
+
+                if os.path.exists(cert_tool_path):
+                    self.append_log("Attempting to generate PDF/QR code...")
+                    subprocess.run([
+                        "python3", cert_tool_path,
+                        "--json", cert_path,
+                        "--pdf-out", f"{cert_path}.pdf",
+                        "--qr-out", f"{cert_path}.qr.png",
+                        "--no-upload"
+                    ], capture_output=True)
+                    self.append_log("PDF/QR generation complete.")
+                else:
+                    self.append_log(f"Cert_Tool not found at {cert_tool_path}, skipping PDF/QR.")
+            except Exception as e:
+                self.append_log(f"Failed to generate PDF/QR: {e}")
 
         except Exception as e:
             self.append_log(f"✗ Unexpected error: {e}")
@@ -1318,3 +1392,4 @@ if __name__=='__main__':
 
     app = WipeApp()
     app.root.mainloop()
+
