@@ -1,43 +1,31 @@
 {
   "PersonPerformingSanitization": {
-    "Name": "Dr. Sarah Chen",
-    "Title": "Senior Data Security Engineer",
-    "Organization": "Enterprise Security Solutions Corp",
-    "Location": "San Francisco, CA",
-    "Phone": "+1-415-555-0123"
+    "Name": "Omega",
+    "Title": "Data Sanitization Engineer",
+    "Organization": "NullBtyes Solutions Pvt. Ltd.",
+    "Location": "Bengaluru, India",
+    "Phone": "+91-9876543210"
   },
   "MediaInformation": {
     "MakeVendor": "Samsung",
-    "Model": "980 PRO 2TB",
-    "SerialNumber": "S6BZNF0T123456A",
-    "MediaPropertyNumber": "NVME-20251030-ENT",
-    "MediaType": "NVME Drive",
-    "Source": "Enterprise Server - /dev/nvme0n1",
+    "Model": "SSD 860 EVO",
+    "SerialNumber": "S3Z9NB0K123456X",
+    "MediaPropertyNumber": "IT-2025-045",
+    "MediaType": "Solid State Drive",
+    "Source": "User Laptop - Asset #LTP-778",
     "Classification": "Confidential",
     "DataBackedUp": "Yes"
   },
   "SanitizationDetails": {
     "MethodType": "Purge",
-    "MethodUsed": "NVMe Crypto Erase",
-    "ToolUsed": "Hackman Enterprise NVME Tool v2.0",
-    "VerificationMethod": "Hardware-level Verification",
+    "MethodUsed": "Crypto Erase",
+    "ToolUsed": "SecureWipeTool v3.2.1",
+    "VerificationMethod": "Full",
     "NumberOfPasses": "1",
     "PostSanitizationClassification": "Unclassified"
   },
   "MediaDestination": {
-    "Option": "Secure Destruction",
-    "Details": "Sent to certified e-waste destruction facility"
-  },
-  "EnterpriseMetadata": {
-    "StartTime": "2025-10-30 23:13:14",
-    "EndTime": "2025-10-30 23:13:44",
-    "SectorsWiped": 3907029168,
-    "VerificationHash": "4c7aa009976c88e6",
-    "Interface": "NVMe PCIe 4.0",
-    "ComplianceStandards": [
-      "NIST SP 800-88",
-      "DoD 5220.22-M",
-      "ISO 27001"
-    ]
+    "Option": "Recycling Facility",
+    "Details": "E-Waste Solutions, Bengaluru"
   }
 }
