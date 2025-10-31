@@ -1,7 +1,9 @@
 
 "use client";
-import { Shield, Award, Usb, FileCheck, Lock, Recycle, Users, Globe, BookOpen, Zap } from "lucide-react";
+import { Shield, Award, Usb, FileCheck, Lock, Recycle, Users, Globe, BookOpen, Zap, ChevronRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const sections = [
   {
@@ -75,6 +77,17 @@ const sections = [
 export default function BusinessModelPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 relative">
+      <div className="w-full flex justify-start mb-6 px-4 md:px-12">
+        <Link href="/" className="no-underline">
+          <Button
+            variant="outline"
+            className="border-teal-500/40 text-teal-400 hover:bg-teal-500/10 hover:text-white active:text-white focus:text-white px-6 py-3 text-base rounded-xl shadow backdrop-blur-sm flex items-center gap-2"
+          >
+            <ChevronRight className="w-5 h-5 rotate-180" />
+            Back to Home
+          </Button>
+        </Link>
+      </div>
       {/* Animated background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute top-32 left-10 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-pulse" />

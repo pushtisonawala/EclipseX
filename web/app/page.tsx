@@ -23,13 +23,11 @@ import Link from "next/link"
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
-      {/* Animated background elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
       </div>
 
-      {/* Header */}
       <header className="sticky top-0 z-50 backdrop-blur-xl bg-slate-950/50 border-b border-teal-500/20">
         <nav className="container mx-auto px-6 py-4 flex items-center justify-between">
           <motion.div
@@ -58,7 +56,6 @@ export default function HomePage() {
         </nav>
       </header>
 
-      {/* Hero Section */}
       <section className="relative container mx-auto px-6 py-32 text-center">
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
           <motion.div

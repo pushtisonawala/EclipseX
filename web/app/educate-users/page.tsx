@@ -1,13 +1,30 @@
-"use client"
+
+"use client";
 
 import { motion } from "framer-motion";
-import { Shield, Lock, Recycle, Award, Users, FileCheck, Globe, BookOpen } from "lucide-react";
+import { Shield, Lock, Recycle, Award, Users, FileCheck, Globe, BookOpen, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default function EducateUsersPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white flex flex-col items-center justify-center">
+      <div className="w-full flex justify-start mb-6 px-6">
+        <Link href="/" className="no-underline">
+          <Button
+            variant="outline"
+            className="border-teal-500/40 text-teal-400 hover:bg-teal-500/10 px-6 py-3 text-base rounded-xl shadow backdrop-blur-sm flex items-center gap-2"
+          >
+            <ChevronRight className="w-5 h-5 rotate-180" />
+            Back to Home
+          </Button>
+        </Link>
+      </div>
+      <div className="w-full flex justify-start mb-6">
+        <Link href="/">
+          <button className="bg-teal-500 text-white px-4 py-2 rounded-lg shadow hover:bg-teal-600 transition-all">← Back to Home</button>
+        </Link>
+      </div>
       {/* Animated background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-32 left-10 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl animate-pulse" />
@@ -19,10 +36,10 @@ export default function EducateUsersPage() {
         </motion.h1>
         {/* Icon Row */}
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }} className="flex justify-center gap-8 mb-10">
-          <Shield className="w-10 h-10 text-blue-400" title="Security" />
-          <Recycle className="w-10 h-10 text-green-400" title="Environment" />
-          <Award className="w-10 h-10 text-yellow-400" title="Trust" />
-          <Users className="w-10 h-10 text-cyan-400" title="Simplicity" />
+          <Shield className="w-10 h-10 text-blue-400" />
+          <Recycle className="w-10 h-10 text-green-400" />
+          <Award className="w-10 h-10 text-yellow-400" />
+          <Users className="w-10 h-10 text-cyan-400" />
         </motion.div>
         {/* Sections */}
         <div className="grid md:grid-cols-2 gap-10 mb-12 w-full max-w-5xl">
