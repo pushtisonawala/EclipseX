@@ -1,35 +1,119 @@
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image, PageBreak
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY
 from pathlib import Path
 from pypdf import PdfReader, PdfWriter
 import json
+from datetime import datetime
 
 styles = getSampleStyleSheet()
 
+# Professional styles
+styles.add(ParagraphStyle(
+    name='CertTitle',
+    parent=styles['Title'],
+    fontSize=20,
+    textColor=colors.black,
+    spaceAfter=4,
+    alignment=TA_CENTER,
+    fontName='Helvetica-Bold'
+))
+
+styles.add(ParagraphStyle(
+    name='SubTitle',
+    parent=styles['Normal'],
+    fontSize=10,
+    textColor=colors.HexColor('#333333'),
+    alignment=TA_CENTER,
+    fontName='Helvetica'
+))
+
+styles.add(ParagraphStyle(
+    name='SectionHeader',
+    parent=styles['Heading3'],
+    fontSize=11,
+    textColor=colors.black,
+    spaceAfter=6,
+    spaceBefore=12,
+    fontName='Helvetica-Bold',
+    borderWidth=0,
+    borderPadding=0,
+    borderColor=colors.black,
+    underlineProportion=0.15,
+    underlineGap=-2
+))
+
 def make_section(title, data, col_widths=None):
-    section_title = Paragraph(f"<b>{title}</b>", styles['Heading4'])
+    # Section header with underline
+    section_title = Paragraph(f'<u><b>{title}</b></u>', styles['SectionHeader'])
+    
+    # Create table with alternating row colors
     table = Table(data, colWidths=col_widths)
-    table.setStyle(TableStyle([
-        ('BOX', (0,0), (-1,-1), 0.5, colors.black),
-        ('INNERGRID', (0,0), (-1,-1), 0.25, colors.grey),
+    
+    # Calculate number of rows for alternating colors
+    row_colors = []
+    for i in range(len(data)):
+        if i % 2 == 0:
+            row_colors.append(('BACKGROUND', (0, i), (-1, i), colors.HexColor('#F5F5F5')))
+    
+    style_commands = [
+        ('BOX', (0,0), (-1,-1), 0.75, colors.black),
+        ('LINEBELOW', (0,0), (-1,-1), 0.25, colors.HexColor('#CCCCCC')),
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-        ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
+        ('FONTNAME', (0,0), (0,-1), 'Helvetica-Bold'),
+        ('FONTNAME', (1,0), (-1,-1), 'Helvetica'),
         ('FONTSIZE', (0,0), (-1,-1), 9),
-        ('LEFTPADDING', (0,0), (-1,-1), 4),
-        ('RIGHTPADDING', (0,0), (-1,-1), 4),
-    ]))
-    return [section_title, table, Spacer(1, 6)]
+        ('LEFTPADDING', (0,0), (-1,-1), 8),
+        ('RIGHTPADDING', (0,0), (-1,-1), 8),
+        ('TOPPADDING', (0,0), (-1,-1), 6),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+    ] + row_colors
+    
+    table.setStyle(TableStyle(style_commands))
+    return [section_title, table, Spacer(1, 10)]
 
 def header(elements, subtitle: str | None = None):
-    elements.append(Paragraph("<b><font size=16>CERTIFICATE OF SANITIZATION</font></b>", styles['Title']))
+    # Title
+    elements.append(Spacer(1, 10))
+    elements.append(Paragraph("<b>CERTIFICATE OF SANITIZATION</b>", styles['CertTitle']))
     elements.append(Spacer(1, 6))
+    
+    # NIST Reference
+    elements.append(Paragraph("In Accordance with NIST SP 800-88 Revision 1", styles['SubTitle']))
+    elements.append(Paragraph("Guidelines for Media Sanitization", styles['SubTitle']))
+    elements.append(Spacer(1, 8))
+    
     if subtitle:
-        elements.append(Paragraph(f"<font size=10>{subtitle}</font>", styles['Normal']))
-        elements.append(Spacer(1, 12))
-    else:
-        elements.append(Spacer(1, 12))
+        elements.append(Paragraph(f"{subtitle}", styles['SubTitle']))
+        elements.append(Spacer(1, 6))
+    
+    # Certificate details box
+    cert_date = datetime.now().strftime("%B %d, %Y")
+    cert_time = datetime.now().strftime("%I:%M %p")
+    
+    cert_info = Table([
+        ["Certificate Issue Date:", cert_date, "Issue Time:", cert_time],
+    ], colWidths=[130, 120, 80, 130])
+    
+    cert_info.setStyle(TableStyle([
+        ('BOX', (0,0), (-1,-1), 0.75, colors.black),
+        ('FONTNAME', (0,0), (0,-1), 'Helvetica-Bold'),
+        ('FONTNAME', (2,0), (2,-1), 'Helvetica-Bold'),
+        ('FONTNAME', (1,0), (1,-1), 'Helvetica'),
+        ('FONTNAME', (3,0), (3,-1), 'Helvetica'),
+        ('FONTSIZE', (0,0), (-1,-1), 9),
+        ('LEFTPADDING', (0,0), (-1,-1), 8),
+        ('RIGHTPADDING', (0,0), (-1,-1), 8),
+        ('TOPPADDING', (0,0), (-1,-1), 6),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#F5F5F5')),
+    ]))
+    
+    elements.append(cert_info)
+    elements.append(Spacer(1, 16))
 
 def generate_certificate_pdf(cert_data: dict,
                               qr_png_path: Path,
@@ -37,104 +121,128 @@ def generate_certificate_pdf(cert_data: dict,
                               output_pdf_path: Path,
                               subtitle: str | None = "Issued by NullBytes",
                               payload_obj: dict | None = None):
-    # --- Build PDF with ReportLab ---
+    # Build PDF with ReportLab
     doc = SimpleDocTemplate(str(output_pdf_path), pagesize=A4,
-                            rightMargin=20, leftMargin=20, topMargin=20, bottomMargin=20)
+                            rightMargin=40, leftMargin=40, topMargin=35, bottomMargin=35)
     elements = []
     header(elements, subtitle)
 
-    # Sections
-    # person = cert_data["performer"]
-    # elements.extend(make_section("Person Performing Sanitization", [
-    #     ["Name:", person["name"], "Title:", person["title"]],
-    #     ["Organization:", person["organization"], "Location:", person["location"]],
-    #     ["Phone:", person["phone"], "", ""],
-    # ], [80, 150, 80, 150]))
-    #
-    # media = cert_data["media"]
-    # elements.extend(make_section("Media Information", [
-    #     ["Make/Vendor:", media["vendor"], "Model:", media["model"]],
-    #     ["Serial Number:", media["serial_number"], "Property Number:", media["property_number"]],
-    #     ["Media Type:", media["type"], "Source:", media["source"]],
-    #     ["Classification:", media["classification"], "Data Backed Up:", media["data_backed_up"]],
-    # ], [100, 130, 100, 130]))
-    #
-    # s = cert_data["sanitization"]
-    # elements.extend(make_section("Sanitization Details", [
-    #     ["Method Type:", s["method_type"], "Method Used:", s["method_used"]],
-    #     ["Tool Used (version):", s["tool_used"], "Verification Method:", s["verification_method"]],
-    #     ["Post-Sanitization Classification:", s["post_classification"], "", ""],
-    # ], [120, 110, 120, 110]))
-    #
-    # d = cert_data["destination"]
-    # elements.extend(make_section("Media Destination", [
-    #     ["Destination:", d["type"], "Details:", d["details"]],
-    # ], [100, 130, 100, 130]))
-        # Sections
+    # Section 1: Person Performing Sanitization
     person = cert_data["PersonPerformingSanitization"]
-    elements.extend(make_section("Person Performing Sanitization", [
-        ["Name:", person["Name"], "Title:", person["Title"]],
-        ["Organization:", person["Organization"], "Location:", person["Location"]],
-        ["Phone:", person["Phone"], "", ""],
-    ], [80, 150, 80, 150]))
+    elements.extend(make_section("1. SANITIZATION PERSONNEL INFORMATION", [
+        ["Name:", person["Name"]],
+        ["Title/Position:", person["Title"]],
+        ["Organization:", person["Organization"]],
+        ["Location:", person["Location"]],
+        ["Contact Phone:", person["Phone"]],
+    ], [140, 380]))
 
+    # Section 2: Media Information
     media = cert_data["MediaInformation"]
-    elements.extend(make_section("Media Information", [
-        ["Make/Vendor:", media["MakeVendor"], "Model:", media["Model"]],
-        ["Serial Number:", media["SerialNumber"], "Property Number:", media["MediaPropertyNumber"]],
-        ["Media Type:", media["MediaType"], "Source:", media["Source"]],
-        ["Classification:", media["Classification"], "Data Backed Up:", media["DataBackedUp"]],
-    ], [100, 130, 100, 130]))
+    elements.extend(make_section("2. MEDIA IDENTIFICATION AND CLASSIFICATION", [
+        ["Media Type:", media["MediaType"]],
+        ["Manufacturer/Vendor:", media["MakeVendor"]],
+        ["Model:", media["Model"]],
+        ["Serial Number:", media["SerialNumber"]],
+        ["Asset/Property Number:", media["MediaPropertyNumber"]],
+        ["Source/Custodian:", media["Source"]],
+        ["Security Classification:", media["Classification"]],
+        ["Data Backup Completed:", media["DataBackedUp"]],
+    ], [140, 380]))
 
+    # Section 3: Sanitization Details
     s = cert_data["SanitizationDetails"]
-    elements.extend(make_section("Sanitization Details", [
-        ["Method Type:", s["MethodType"], "Method Used:", s["MethodUsed"]],
-        ["Tool Used (version):", s["ToolUsed"], "Verification Method:", s["VerificationMethod"]],
-        ["Number of Passes:", s["NumberOfPasses"], "Post-Sanitization Classification:", s["PostSanitizationClassification"]],
-    ], [120, 110, 120, 110]))
+    elements.extend(make_section("3. SANITIZATION PROCESS DETAILS", [
+        ["Sanitization Method Type:", s["MethodType"]],
+        ["Specific Method Used:", s["MethodUsed"]],
+        ["Tool/Software Used (Version):", s["ToolUsed"]],
+        ["Number of Passes:", s["NumberOfPasses"]],
+        ["Verification Method:", s["VerificationMethod"]],
+        ["Post-Sanitization Classification:", s["PostSanitizationClassification"]],
+    ], [140, 380]))
 
+    # Section 4: Media Destination
     d = cert_data["MediaDestination"]
-    elements.extend(make_section("Media Destination", [
-        ["Destination:", d["Option"], "Details:", d["Details"]],
-    ], [100, 130, 100, 130]))
+    elements.extend(make_section("4. MEDIA DISPOSITION", [
+        ["Disposition Method:", d["Option"]],
+        ["Additional Details:", d["Details"]],
+    ], [140, 380]))
 
+    # Section 5: Certification Statement
+    elements.append(Spacer(1, 6))
+    elements.append(Paragraph('<u><b>5. CERTIFICATION AND ATTESTATION</b></u>', styles['SectionHeader']))
+    
+    cert_statement = """I hereby certify that the media sanitization described in this certificate has been 
+    performed in strict accordance with the National Institute of Standards and Technology (NIST) Special 
+    Publication 800-88 Revision 1 guidelines. The sanitization process has been completed, verified, and 
+    documented as specified above. All applicable organizational security policies and procedures have been 
+    followed during this sanitization process."""
+    
+    cert_para = Paragraph(cert_statement, styles['BodyText'])
+    elements.append(cert_para)
+    elements.append(Spacer(1, 16))
 
-    # QR block
-    qr_img = Image(str(qr_png_path), width=110, height=110)
-    qr_table = Table([
-        [qr_img],
-        [Paragraph("<b>Scan here for verification</b>", styles['BodyText'])],
-        [Paragraph("Opens verifier site and auto-verifies", styles['BodyText'])]
-    ], colWidths=[140])
-    qr_table.setStyle(TableStyle([
-        ('BOX', (0,0), (-1,-1), 0.5, colors.black),
-        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
-        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-        ('TOPPADDING', (0,0), (-1,-1), 6),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+    # Signature block
+    sig_table = Table([
+        ["", ""],
+        ["Authorized Signature: _______________________________", f"Date: {datetime.now().strftime('%m/%d/%Y')}"],
+        ["", ""],
+        ["Print Name: _______________________________", ""],
+    ], colWidths=[340, 140])
+    
+    sig_table.setStyle(TableStyle([
+        ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
+        ('FONTSIZE', (0,0), (-1,-1), 9),
+        ('TOPPADDING', (0,0), (-1,-1), 4),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+        ('VALIGN', (0,0), (-1,-1), 'BOTTOM'),
     ]))
-    elements.append(Spacer(1, 12))
+    elements.append(sig_table)
+    elements.append(Spacer(1, 20))
+
+    # QR Verification Section
+    elements.append(Paragraph('<u><b>6. DIGITAL VERIFICATION</b></u>', styles['SectionHeader']))
+    
+    qr_img = Image(str(qr_png_path), width=90, height=90)
+    
+    verification_text = """<b>Certificate Verification</b><br/><br/>
+    Scan the QR code to access the secure verification portal and confirm the authenticity of this certificate. 
+    The digital verification system provides real-time validation of certificate details and ensures document integrity."""
+    
+    qr_table = Table([
+        [qr_img, Paragraph(verification_text, styles['BodyText'])],
+    ], colWidths=[110, 410])
+    
+    qr_table.setStyle(TableStyle([
+        ('BOX', (0,0), (-1,-1), 0.75, colors.black),
+        ('ALIGN', (0,0), (0,0), 'CENTER'),
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('LEFTPADDING', (0,0), (-1,-1), 12),
+        ('RIGHTPADDING', (0,0), (-1,-1), 12),
+        ('TOPPADDING', (0,0), (-1,-1), 10),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 10),
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#F5F5F5')),
+    ]))
     elements.append(qr_table)
     elements.append(Spacer(1, 4))
+    
+    # Hidden verification URL
     elements.append(Paragraph(f"<font size=6 color='white'>{qr_url}</font>", styles['Normal']))
+    
+    # Footer note
+    elements.append(Spacer(1, 10))
+    footer_style = ParagraphStyle(
+        'Footer',
+        parent=styles['Normal'],
+        fontSize=7,
+        textColor=colors.HexColor('#666666'),
+        alignment=TA_CENTER
+    )
+    elements.append(Paragraph("This certificate serves as official documentation of media sanitization procedures completed in accordance with federal guidelines.", footer_style))
 
     doc.build(elements)
 
-    # --- Embed payload into PDF metadata ---
-    # if payload_obj:
-    #     reader = PdfReader(str(output_pdf_path))
-    #     writer = PdfWriter()
-    #     writer.append_pages_from_reader(reader)
-    #
-    #     payload_json = json.dumps(payload_obj, separators=(",", ":"), sort_keys=True)
-    #     writer.add_metadata({
-    #         NameObject("/CertPayload"): createStringObject(payload_json)
-    #     })
-    #
-    #     with open(output_pdf_path, "wb") as f_out:
-    #         writer.write(f_out)
-
-        # --- Embed payload into PDF metadata ---
+    # Embed payload into PDF metadata
     if payload_obj:
         reader = PdfReader(str(output_pdf_path))
         writer = PdfWriter()
@@ -147,4 +255,3 @@ def generate_certificate_pdf(cert_data: dict,
 
         with open(output_pdf_path, "wb") as f_out:
             writer.write(f_out)
-
