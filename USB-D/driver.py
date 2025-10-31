@@ -562,27 +562,32 @@ class WipeApp:
     def __init__(self):
         self.root = tk.Tk()
 
-        # --- Theme Colors ---
-        BG_COLOR = "#1e1e1e"
-        FG_COLOR = "#39FF14"
-        TEXT_BG = "#121212"
-        WIDGET_BG = "#2c2c2c"
-        ACTIVE_BG = "#404040"
+        # --- Modern Sleek Theme Colors ---
+        BG_COLOR = "#0f0f0f"  # Pure dark
+        CARD_BG = "#1a1a1a"  # Card background
+        FG_COLOR = "#e0e0e0"  # Light gray text
+        TEXT_BG = "#141414"
+        WIDGET_BG = "#222222"
+        ACTIVE_BG = "#2d2d2d"
         DISABLED_FG = "#666666"
-        BORDER_COLOR = "#39FF14"
-        SELECT_FG_COLOR = "#121212" # Text color when an item is selected
-
+        BORDER_COLOR = "#333333"
+        ACCENT_PRIMARY = "#6366f1"  # Modern indigo
+        ACCENT_DANGER = "#ef4444"  # Modern red
+        ACCENT_SUCCESS = "#10b981"  # Modern green
+        ACCENT_WARNING = "#f59e0b"  # Modern amber
+        SELECT_FG_COLOR = "#ffffff"
+        GLOW_SHADOW = "#6366f1"
+        
         self.root.configure(bg=BG_COLOR)
-        self.root.title("NIST-Aware Wiper | NullBytes")
-        self.root.geometry("1200x800")
-        # self.root.resizable(False, False)
+        self.root.title("Veri-Wipe • NIST Certified Sanitization")
+        self.root.geometry("1400x900")
         self.root.update_idletasks()
         self.root.wm_aspect(16, 9, 16, 9)
 
         self.cancel_flag = threading.Event()
         self.current_process = None
 
-        # --- Style ---
+        # --- Modern Sleek Style ---
         style = ttk.Style(self.root)
         style.theme_use("clam")
 
@@ -592,40 +597,116 @@ class WipeApp:
                         foreground=FG_COLOR,
                         fieldbackground=WIDGET_BG,
                         borderwidth=0,
-                        font=('Helvetica', 10))
+                        font=('Inter', 10))
 
-        # Frames and Labels
+        # Frames
         style.configure('TFrame', background=BG_COLOR)
-        style.configure('TLabel', background=BG_COLOR, foreground=FG_COLOR, padding=5)
-        style.configure('TLabelFrame', background=BG_COLOR, bordercolor=BORDER_COLOR)
-        style.configure('TLabelFrame.Label', background=BG_COLOR, foreground=FG_COLOR, font=('Helvetica', 10, 'bold'))
-
-        # Radiobutton
-        style.configure('TRadiobutton',
+        style.configure('Card.TFrame', background=CARD_BG)
+        
+        # Labels
+        style.configure('TLabel', 
+                        background=BG_COLOR, 
+                        foreground=FG_COLOR, 
+                        padding=5,
+                        font=('Inter', 10))
+        
+        style.configure('Title.TLabel',
                         background=BG_COLOR,
                         foreground=FG_COLOR,
-                        indicatorrelief=tk.FLAT)
+                        font=('Inter', 32, 'bold'))
+        
+        style.configure('Subtitle.TLabel',
+                        background=BG_COLOR,
+                        foreground='#999999',
+                        font=('Inter', 11))
+        
+        style.configure('CardTitle.TLabel',
+                        background=CARD_BG,
+                        foreground=FG_COLOR,
+                        font=('Inter', 13, 'bold'))
+        
+        style.configure('SectionLabel.TLabel',
+                        background=CARD_BG,
+                        foreground='#999999',
+                        font=('Inter', 9, 'bold'))
+        
+        style.configure('TLabelFrame', 
+                        background=CARD_BG, 
+                        bordercolor=BORDER_COLOR,
+                        relief='flat')
+        style.configure('TLabelFrame.Label', 
+                        background=CARD_BG, 
+                        foreground=FG_COLOR, 
+                        font=('Inter', 11, 'bold'))
+
+        # Radiobutton - modern flat style
+        style.configure('TRadiobutton',
+                        background=CARD_BG,
+                        foreground=FG_COLOR,
+                        indicatorrelief=tk.FLAT,
+                        font=('Inter', 10))
         style.map('TRadiobutton',
                     background=[('active', ACTIVE_BG)],
-                    indicatorcolor=[('selected', FG_COLOR), ('!selected', WIDGET_BG)])
+                    foreground=[('active', ACCENT_PRIMARY)],
+                    indicatorcolor=[('selected', ACCENT_PRIMARY), ('!selected', WIDGET_BG)])
 
-        # Button
+        # Modern Buttons
         style.configure('TButton',
                         background=WIDGET_BG,
                         foreground=FG_COLOR,
-                        padding=8,
+                        padding=12,
+                        borderwidth=0,
+                        relief=tk.FLAT,
+                        font=('Inter', 10, 'bold'))
+        style.map('TButton',
+                    background=[('active', ACTIVE_BG), ('disabled', '#1a1a1a')],
+                    foreground=[('disabled', DISABLED_FG), ('active', FG_COLOR)])
+
+        # Primary button (indigo)
+        style.configure('Primary.TButton',
+                        background=ACCENT_PRIMARY,
+                        foreground='white',
+                        padding=14,
+                        borderwidth=0,
+                        font=('Inter', 11, 'bold'))
+        style.map('Primary.TButton',
+                    background=[('active', '#5558e3'), ('disabled', '#4a4d9e')])
+
+        # Danger button (red)
+        style.configure('Danger.TButton',
+                        background=ACCENT_DANGER,
+                        foreground='white',
+                        padding=14,
+                        borderwidth=0,
+                        font=('Inter', 11, 'bold'))
+        style.map('Danger.TButton',
+                    background=[('active', '#dc2626'), ('disabled', '#991b1b')])
+
+        # Success button (green)
+        style.configure('Success.TButton',
+                        background=ACCENT_SUCCESS,
+                        foreground='white',
+                        padding=12,
+                        font=('Inter', 10, 'bold'))
+        style.map('Success.TButton',
+                    background=[('active', '#059669')])
+
+        # Secondary button
+        style.configure('Secondary.TButton',
+                        background=WIDGET_BG,
+                        foreground=FG_COLOR,
+                        padding=12,
                         borderwidth=1,
                         relief=tk.FLAT,
-                        font=('Helvetica', 10, 'bold'))
-        style.map('TButton',
-                    background=[('active', ACTIVE_BG), ('disabled', '#333333')],
-                    foreground=[('disabled', DISABLED_FG)])
+                        font=('Inter', 10))
+        style.map('Secondary.TButton',
+                    background=[('active', ACTIVE_BG)])
 
         # Combobox
         self.root.option_add('*TCombobox*Listbox.background', WIDGET_BG)
         self.root.option_add('*TCombobox*Listbox.foreground', FG_COLOR)
-        self.root.option_add('*TCombobox*Listbox.selectBackground', FG_COLOR)
-        self.root.option_add('*TCombobox*Listbox.selectForeground', SELECT_FG_COLOR)
+        self.root.option_add('*TCombobox*Listbox.selectBackground', ACCENT_PRIMARY)
+        self.root.option_add('*TCombobox*Listbox.selectForeground', 'white')
         style.configure('TCombobox',
                         fieldbackground=WIDGET_BG,
                         background=WIDGET_BG,
@@ -636,7 +717,8 @@ class WipeApp:
                         insertcolor=FG_COLOR,
                         bordercolor=BORDER_COLOR,
                         lightcolor=BORDER_COLOR,
-                        darkcolor=BORDER_COLOR)
+                        darkcolor=BORDER_COLOR,
+                        padding=10)
         style.map('TCombobox',
                     background=[('readonly', WIDGET_BG)],
                     fieldbackground=[('readonly', WIDGET_BG)],
@@ -644,65 +726,210 @@ class WipeApp:
 
         # Progressbar
         style.configure('Horizontal.TProgressbar',
-                        background=FG_COLOR,
+                        background=ACCENT_PRIMARY,
                         troughcolor=WIDGET_BG,
                         bordercolor=BORDER_COLOR,
-                        lightcolor=FG_COLOR,
-                        darkcolor=FG_COLOR)
+                        lightcolor=ACCENT_PRIMARY,
+                        darkcolor=ACCENT_PRIMARY,
+                        thickness=6)
 
         # --- Main Layout ---
-        frame = ttk.Frame(self.root, padding=8)
-        frame.pack(fill='both', expand=True)
+        # Top padding
+        top_spacer = tk.Frame(self.root, bg=BG_COLOR, height=30)
+        top_spacer.pack(fill='x')
 
-        # Device selection
-        top = ttk.Frame(frame)
-        top.pack(fill='x')
-        ttk.Label(top,text="Select target:").pack(side='left')
+        # Header Section - centered and minimal
+        header = tk.Frame(self.root, bg=BG_COLOR)
+        header.pack(fill='x', padx=60)
+        
+        # Title with dot accent
+        title_frame = tk.Frame(header, bg=BG_COLOR)
+        title_frame.pack(anchor='w')
+        
+        dot = tk.Label(title_frame, text="●", bg=BG_COLOR, fg=ACCENT_PRIMARY, font=('Inter', 24))
+        dot.pack(side='left', padx=(0, 10))
+        
+        title_label = tk.Label(title_frame, 
+                               text="Veri-Wipe", 
+                               bg=BG_COLOR, 
+                               fg=FG_COLOR,
+                               font=('Inter', 32, 'bold'))
+        title_label.pack(side='left')
+        
+        subtitle_label = tk.Label(header, 
+                                  text="NIST SP 800-88 Certified Data Sanitization", 
+                                  bg=BG_COLOR, 
+                                  fg='#999999',
+                                  font=('Inter', 11))
+        subtitle_label.pack(anchor='w', pady=(5, 0))
+
+        # Main content container
+        container = tk.Frame(self.root, bg=BG_COLOR)
+        container.pack(fill='both', expand=True, padx=60, pady=30)
+
+        # --- Device Selection Card ---
+        device_card = tk.Frame(container, bg=CARD_BG, relief='flat')
+        device_card.pack(fill='x', pady=(0, 20))
+        
+        device_inner = tk.Frame(device_card, bg=CARD_BG)
+        device_inner.pack(fill='x', padx=30, pady=25)
+        
+        device_label_frame = tk.Frame(device_inner, bg=CARD_BG)
+        device_label_frame.pack(fill='x', pady=(0, 15))
+        
+        tk.Label(device_label_frame, text="Target Device", bg=CARD_BG, fg=FG_COLOR, 
+                font=('Inter', 13, 'bold')).pack(side='left')
+        
+        tk.Label(device_label_frame, text="SELECT STORAGE DEVICE", bg=CARD_BG, fg='#666666',
+                font=('Inter', 9, 'bold')).pack(side='right')
+        
+        device_controls = tk.Frame(device_inner, bg=CARD_BG)
+        device_controls.pack(fill='x')
+        
         self.device_var = tk.StringVar()
-        self.device_combo = ttk.Combobox(top, textvariable=self.device_var, state='readonly')
-        self.device_combo.pack(side='left', padx=6, fill='x', expand=True)
-        ttk.Button(top, text="Refresh", command=self.refresh_devices).pack(side='left')
+        self.device_combo = ttk.Combobox(device_controls, textvariable=self.device_var, state='readonly')
+        self.device_combo.pack(side='left', fill='x', expand=True, padx=(0, 15))
+        
+        refresh_btn = ttk.Button(device_controls, text="Refresh", command=self.refresh_devices, style='Secondary.TButton')
+        refresh_btn.pack(side='left')
 
-        # Wipe method (dynamic)
-        self.method_frame = ttk.LabelFrame(frame, text='Wipe Method')
-        self.method_frame.pack(fill='x', pady=6, ipady=5, ipadx=5)
+        # --- Two Column Layout ---
+        columns = tk.Frame(container, bg=BG_COLOR)
+        columns.pack(fill='both', expand=True)
+
+        # Left Column - Wipe Method
+        left_col = tk.Frame(columns, bg=BG_COLOR)
+        left_col.pack(side='left', fill='both', expand=True, padx=(0, 10))
+        
+        method_card = tk.Frame(left_col, bg=CARD_BG, relief='flat')
+        method_card.pack(fill='both', expand=True)
+        
+        method_inner = tk.Frame(method_card, bg=CARD_BG)
+        method_inner.pack(fill='both', expand=True, padx=30, pady=25)
+        
+        method_header = tk.Frame(method_inner, bg=CARD_BG)
+        method_header.pack(fill='x', pady=(0, 15))
+        
+        tk.Label(method_header, text="Wipe Method", bg=CARD_BG, fg=FG_COLOR,
+                font=('Inter', 13, 'bold')).pack(side='left')
+        
+        tk.Label(method_header, text="SANITIZATION TECHNIQUE", bg=CARD_BG, fg='#666666',
+                font=('Inter', 9, 'bold')).pack(side='right')
+        
+        self.method_frame = tk.Frame(method_inner, bg=CARD_BG)
+        self.method_frame.pack(fill='both', expand=True)
+        
         self.method_var = tk.StringVar(value='auto')
         self.method_buttons = []
 
-        # Description box
-                # Description box
-        self.method_desc = tk.Text(self.method_frame, height=4, wrap='word', bg=TEXT_BG, fg=FG_COLOR, relief='solid', borderwidth=1,highlightthickness=0, font=('Helvetica', 10))
-        self.method_desc.pack(fill='x', pady=4, padx=5)
-        self.method_desc.config(state='disabled') # Set state after creation
+        # Description in card at bottom
+        desc_label = tk.Label(method_inner, text="DESCRIPTION", bg=CARD_BG, fg='#666666',
+                             font=('Inter', 9, 'bold'), anchor='w')
+        desc_label.pack(fill='x', pady=(15, 8))
+        
+        self.method_desc = tk.Text(method_inner, 
+                                   height=4, 
+                                   wrap='word', 
+                                   bg=TEXT_BG, 
+                                   fg='#cccccc', 
+                                   relief='flat', 
+                                   borderwidth=0,
+                                   highlightthickness=0,
+                                   padx=15,
+                                   pady=12,
+                                   font=('Inter', 9))
+        self.method_desc.pack(fill='x')
+        self.method_desc.config(state='disabled')
 
-        # Verification (dynamic)
-        self.ver_frame = ttk.LabelFrame(frame,text='Verification')
-        self.ver_frame.pack(fill='x', pady=6, ipady=5, ipadx=5)
+        # Right Column - Verification
+        right_col = tk.Frame(columns, bg=BG_COLOR)
+        right_col.pack(side='left', fill='both', expand=True, padx=(10, 0))
+        
+        verify_card = tk.Frame(right_col, bg=CARD_BG, relief='flat')
+        verify_card.pack(fill='both', expand=True)
+        
+        verify_inner = tk.Frame(verify_card, bg=CARD_BG)
+        verify_inner.pack(fill='both', expand=True, padx=30, pady=25)
+        
+        verify_header = tk.Frame(verify_inner, bg=CARD_BG)
+        verify_header.pack(fill='x', pady=(0, 15))
+        
+        tk.Label(verify_header, text="Verification", bg=CARD_BG, fg=FG_COLOR,
+                font=('Inter', 13, 'bold')).pack(side='left')
+        
+        tk.Label(verify_header, text="POST-WIPE VALIDATION", bg=CARD_BG, fg='#666666',
+                font=('Inter', 9, 'bold')).pack(side='right')
+        
+        self.ver_frame = tk.Frame(verify_inner, bg=CARD_BG)
+        self.ver_frame.pack(fill='both', expand=True)
+        
         self.verify_var = tk.StringVar(value='none')
         self.verify_buttons = []
 
-        # Controls
-        ctrl = ttk.Frame(frame)
-        ctrl.pack(fill='x', pady=8)
-        ttk.Button(ctrl,text='Start Wipe',command=self.start).pack(side='left')
-        # ttk.Button(ctrl,text='Open Logs',command=self.open_logs_dir).pack(side='left',padx=6)
-        ttk.Button(ctrl,text='Certificates',command=self.open_certificates).pack(side='left',padx=6)
-        self.cancel_btn = ttk.Button(ctrl,text='Cancel',command=self.cancel,state='disabled')
-        self.cancel_btn.pack(side='right')
+        # Action Buttons
+        actions = tk.Frame(container, bg=BG_COLOR)
+        actions.pack(fill='x', pady=(20, 0))
+        
+        left_actions = tk.Frame(actions, bg=BG_COLOR)
+        left_actions.pack(side='left')
+        
+        cert_btn = ttk.Button(left_actions, text="View Certificates", 
+                             command=self.open_certificates, style='Success.TButton')
+        cert_btn.pack(side='left')
+        
+        right_actions = tk.Frame(actions, bg=BG_COLOR)
+        right_actions.pack(side='right')
+        
+        self.cancel_btn = ttk.Button(right_actions, text="Cancel", 
+                                     command=self.cancel, state='disabled', style='Secondary.TButton')
+        self.cancel_btn.pack(side='left', padx=(0, 15))
+        
+        self.start_btn = ttk.Button(right_actions, text="Start Wipe", 
+                                    command=self.start, style='Danger.TButton')
+        self.start_btn.pack(side='left')
 
-        # Log
-        self.log = tk.Text(frame, height=20, bg=TEXT_BG, fg=FG_COLOR,
-                           relief='solid', borderwidth=1, insertbackground="#FFFFFF", # White cursor is more visible
-                           selectbackground=FG_COLOR, selectforeground=SELECT_FG_COLOR,
+        # --- Log Section ---
+        log_card = tk.Frame(container, bg=CARD_BG, relief='flat')
+        log_card.pack(fill='both', expand=True, pady=(20, 0))
+        
+        log_inner = tk.Frame(log_card, bg=CARD_BG)
+        log_inner.pack(fill='both', expand=True, padx=30, pady=25)
+        
+        log_header = tk.Frame(log_inner, bg=CARD_BG)
+        log_header.pack(fill='x', pady=(0, 15))
+        
+        tk.Label(log_header, text="Operation Log", bg=CARD_BG, fg=FG_COLOR,
+                font=('Inter', 13, 'bold')).pack(side='left')
+        
+        tk.Label(log_header, text="REAL-TIME OUTPUT", bg=CARD_BG, fg='#666666',
+                font=('Inter', 9, 'bold')).pack(side='right')
+        
+        log_container = tk.Frame(log_inner, bg=TEXT_BG)
+        log_container.pack(fill='both', expand=True)
+        
+        scrollbar = tk.Scrollbar(log_container, bg=WIDGET_BG, troughcolor=TEXT_BG)
+        scrollbar.pack(side='right', fill='y')
+        
+        self.log = tk.Text(log_container, 
+                           bg=TEXT_BG, 
+                           fg='#cccccc',
+                           relief='flat', 
+                           borderwidth=0, 
+                           insertbackground=ACCENT_PRIMARY,
+                           selectbackground=ACCENT_PRIMARY, 
+                           selectforeground='white',
                            highlightthickness=0,
-                           font=("monospace", 10))
-        self.log.pack(fill='both', expand=True, pady=6)
+                           padx=15,
+                           pady=10,
+                           yscrollcommand=scrollbar.set,
+                           font=("JetBrains Mono", 9))
+        self.log.pack(side='left', fill='both', expand=True)
+        scrollbar.config(command=self.log.yview)
 
-        # Loader
+        # Startup loader
         self.startup_loader = ttk.Progressbar(self.root, mode='indeterminate', style='Horizontal.TProgressbar')
-        self.startup_loader.pack(fill='x', padx=8, pady=5)
+        self.startup_loader.pack(fill='x', padx=60, pady=(0, 20))
         self.startup_loader.start(10)
-        self.status_frame = None
 
         self.refresh_devices()
         self.startup_loader.stop()
@@ -719,41 +946,40 @@ class WipeApp:
             target = device_label.split()[0]
             dtype = detect_device_type(target)
             if dtype == 'ata':
-                methods = [('Auto (ATA Secure Erase) [Purge]', 'auto'),
+                methods = [('Auto — ATA Secure Erase [Purge]', 'auto'),
                            ('Zero Fill [Clear]', 'zero'),
                            ('Random Fill [Clear]', 'random'),
-                           ('Shred+Zero [Clear]', 'shred')]
+                           ('Shred + Zero [Clear]', 'shred')]
             elif dtype == 'nvme':
-                methods = [('Auto (NVMe Sanitize) [Purge]', 'auto'),
+                methods = [('Auto — NVMe Sanitize [Purge]', 'auto'),
                            ('Zero Fill [Clear]', 'zero'),
                            ('Random Fill [Clear]', 'random'),
-                           ('Shred+Zero [Clear]', 'shred')]
+                           ('Shred + Zero [Clear]', 'shred')]
             elif dtype == 'usb':
                 methods = [('Quick Wipe + FAT32 [Clear]', 'quick'),
-                            ('Zero Fill [Clear]', 'zero'),
-                            ('Random Fill [Clear]', 'random'),
-                            ('Shred+Zero [Clear]', 'shred')]
-
+                           ('Zero Fill [Clear]', 'zero'),
+                           ('Random Fill [Clear]', 'random'),
+                           ('Shred + Zero [Clear]', 'shred')]
             else:
                 methods = [('Zero Fill [Clear]', 'zero'),
                            ('Random Fill [Clear]', 'random'),
-                           ('Shred+Zero [Clear]', 'shred')]
+                           ('Shred + Zero [Clear]', 'shred')]
 
         self.method_var.set(methods[0][1])
         for text, val in methods:
             b = ttk.Radiobutton(self.method_frame, text=text, variable=self.method_var, value=val,
                                 command=lambda v=val: self.update_method_desc(v))
-            b.pack(anchor='w', padx=5)
+            b.pack(anchor='w', pady=5)
             self.method_buttons.append(b)
         self.update_method_desc(self.method_var.get())
 
     def update_method_desc(self, method):
         descs = {
-            'auto': "Automatic secure wipe using hardware commands (ATA Secure Erase or NVMe Sanitize). NIST category: Purge.",
-            'zero': "Overwrites all sectors with zeros. Simple clear operation. NIST category: Clear.",
-            'random': "Overwrites all sectors with random data. Clear operation with stronger obfuscation. NIST category: Clear.",
-            'shred': "Multiple overwrite passes (default 3) with random data followed by zero fill. NIST category: Clear (Close to Clear).",
-            'quick': "Quick wipe for USB drives. Removes filesystem signatures, zeroes key areas, recreates partition table, and formats as FAT32. NIST category: Clear.",
+            'auto': "Automatic secure wipe using hardware-level commands (ATA Secure Erase or NVMe Sanitize). This is the fastest and most secure method. NIST category: Purge.",
+            'zero': "Overwrites all sectors with zeros in a single pass. Simple and effective for most use cases. NIST category: Clear.",
+            'random': "Overwrites all sectors with cryptographically random data. Stronger obfuscation than zero fill. NIST category: Clear.",
+            'shred': "Multiple overwrite passes (default 3) with random data followed by a final zero fill pass. Most thorough software method. NIST category: Clear.",
+            'quick': "Quick wipe optimized for USB drives. Removes filesystem signatures, zeroes critical areas, recreates partition table, and formats as FAT32. NIST category: Clear.",
         }
         self.method_desc.config(state='normal')
         self.method_desc.delete('1.0', tk.END)
@@ -766,25 +992,27 @@ class WipeApp:
         self.verify_buttons.clear()
 
         if device_label == 'Android (ADB)':
-            options = [('None','none')]
+            options = [('None', 'none')]
         else:
-            options = [('None','none'),('Sampled (fast check of random blocks)', 'sampled'),('Full (slow check of all blocks)', 'full')]
+            options = [('None', 'none'),
+                       ('Sampled — Fast random block check', 'sampled'),
+                       ('Full — Complete verification (slow)', 'full')]
 
         self.verify_var.set(options[0][1])
-        for text,val in options:
+        for text, val in options:
             b = ttk.Radiobutton(self.ver_frame, text=text, variable=self.verify_var, value=val)
-            b.pack(anchor='w', padx=5)
+            b.pack(anchor='w', pady=5)
             self.verify_buttons.append(b)
 
-    def append_log(self,text):
-        ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    def append_log(self, text):
+        ts = datetime.now().strftime("%H:%M:%S")
         self.log.insert(tk.END, f"[{ts}] {text}\n")
         self.log.see(tk.END)
 
     def refresh_devices(self):
         self.devices = list_block_devices()
         labels = []
-        for d,info in self.devices:
+        for d, info in self.devices:
             dtype = detect_device_type(d)
             labels.append(f"{d} ({dtype.upper()}) — {info}")
         labels.append('Android (ADB)')
@@ -806,7 +1034,6 @@ class WipeApp:
             path = 'log/NullBytes'
         os.makedirs(path, exist_ok=True)
 
-        # File dialog
         file_path = tk.filedialog.askopenfilename(
             initialdir=path,
             title="Select a certificate",
@@ -814,32 +1041,7 @@ class WipeApp:
         )
 
         if not file_path:
-            return  # user cancelled
-
-        # if file_path.endswith(".json"):
-        #     try:
-        #         with open(file_path, "r") as f:
-        #             data = json.load(f)
-        #         # viewer = tk.Toplevel(self.root)
-        #         # viewer.title(f"JSON Certificate: {os.path.basename(file_path)}")
-        #         # text = tk.Text(viewer, wrap="word", height=30, width=100, bg="#121212", fg="#39FF14", insertbackground="white")
-        #         # text.pack(fill="both", expand=True)
-        #         # text.insert("1.0", json.dumps(data, indent=4))
-        #         # text.config(state="disabled")
-        #         viewer = tk.Toplevel(self.root)
-        #         viewer.title(f"JSON Certificate: {os.path.basename(file_path)}")
-        #         viewer.geometry("720x540")
-        #         viewer.resizable(False, False)
-        #         viewer.wm_aspect(16, 9, 16, 9)
-        #         frame = ttk.Frame(viewer)
-        #         frame.pack(fill="both", expand=True, padx=5, pady=5)
-        #         text = tk.Text(frame, wrap="word", bg="#121212", fg="#39FF14", insertbackground="white")
-        #         text.pack(fill="both", expand=True)
-        #         text.insert("1.0", json.dumps(data, indent=4))
-        #         text.config(state="disabled")
-        #
-        #     except Exception as e:
-        #         messagebox.showerror("Error", f"Could not open JSON: {e}")
+            return
 
         if file_path.endswith(".json"):
             try:
@@ -847,40 +1049,59 @@ class WipeApp:
                     data = json.load(f)
 
                 viewer = tk.Toplevel(self.root)
-                viewer.title(f"JSON Certificate: {os.path.basename(file_path)}")
-                viewer.geometry("720x540")
-                viewer.resizable(False, False)
-                viewer.wm_aspect(16, 9, 16, 9)
+                viewer.title(f"Certificate: {os.path.basename(file_path)}")
+                viewer.geometry("900x700")
+                viewer.configure(bg="#0f0f0f")
+                
+                frame = tk.Frame(viewer, bg="#0f0f0f")
+                frame.pack(fill="both", expand=True, padx=30, pady=30)
+                
+                # Header
+                header = tk.Frame(frame, bg="#0f0f0f")
+                header.pack(fill='x', pady=(0, 20))
+                
+                tk.Label(header, text="Certificate Details", bg="#0f0f0f", fg="#e0e0e0",
+                        font=('Inter', 20, 'bold')).pack(side='left')
 
-                frame = ttk.Frame(viewer)
-                frame.pack(fill="both", expand=True, padx=5, pady=5)
+                # Content card
+                content_card = tk.Frame(frame, bg="#1a1a1a")
+                content_card.pack(fill="both", expand=True)
+                
+                content_inner = tk.Frame(content_card, bg="#1a1a1a")
+                content_inner.pack(fill="both", expand=True, padx=25, pady=25)
 
-                # Scrollable text widget
-                text_frame = ttk.Frame(frame)
-                text_frame.pack(fill="both", expand=True)
-
-                scrollbar = ttk.Scrollbar(text_frame)
+                scrollbar = tk.Scrollbar(content_inner, bg="#222222")
                 scrollbar.pack(side="right", fill="y")
 
                 text = tk.Text(
-                    text_frame,
+                    content_inner,
                     wrap="word",
-                    bg="#121212",
-                    fg="#39FF14",
-                    insertbackground="white",
-                    yscrollcommand=scrollbar.set
+                    bg="#141414",
+                    fg="#cccccc",
+                    insertbackground="#6366f1",
+                    yscrollcommand=scrollbar.set,
+                    padx=20,
+                    pady=20,
+                    relief='flat',
+                    borderwidth=0,
+                    font=("JetBrains Mono", 10)
                 )
                 text.pack(fill="both", expand=True)
                 scrollbar.config(command=text.yview)
 
-                # Insert JSON data
                 text.insert("1.0", json.dumps(data, indent=4))
                 text.config(state="disabled")
 
                 # Close button
-                ttk.Button(frame, text="Close", command=viewer.destroy).pack(pady=5)
+                btn_frame = tk.Frame(frame, bg="#0f0f0f")
+                btn_frame.pack(pady=(20, 0))
+                
+                close_btn = tk.Button(btn_frame, text="Close", command=viewer.destroy,
+                                     bg="#222222", fg="#e0e0e0", font=("Inter", 10, "bold"),
+                                     padx=30, pady=12, relief="flat", cursor="hand2",
+                                     activebackground="#2d2d2d")
+                close_btn.pack()
 
-                # Escape key also closes window
                 viewer.bind("<Escape>", lambda e: viewer.destroy())
 
             except Exception as e:
@@ -888,21 +1109,20 @@ class WipeApp:
 
         elif file_path.endswith(".pdf"):
             try:
-                subprocess.Popen(["xdg-open", file_path])  # open with system PDF viewer
+                subprocess.Popen(["xdg-open", file_path])
             except Exception as e:
                 messagebox.showerror("Error", f"Could not open PDF: {e}")
 
-
     def lock_ui(self):
         self.device_combo.configure(state='disabled')
-        # Disable all method/verification buttons
+        self.start_btn.configure(state='disabled')
         for btn in self.method_buttons + self.verify_buttons:
             btn.configure(state='disabled')
         self.cancel_btn.configure(state='normal')
 
     def unlock_ui(self):
         self.device_combo.configure(state='readonly')
-         # Enable all method/verification buttons
+        self.start_btn.configure(state='normal')
         for btn in self.method_buttons + self.verify_buttons:
             btn.configure(state='normal')
         self.cancel_btn.configure(state='disabled')
@@ -914,16 +1134,17 @@ class WipeApp:
                 self.current_process.terminate()
             except ProcessLookupError:
                 pass
-        self.append_log('>>> User requested cancel. Operation terminating... <<<')
+        self.append_log('User requested cancel. Operation terminating...')
 
     def start(self):
         sel = self.device_combo.get()
         if not sel:
-            messagebox.showwarning('No device','Select a target device')
+            messagebox.showwarning('No device', 'Select a target device')
             return
 
         if sel != 'Android (ADB)':
-            if not messagebox.askyesno("Confirm Wipe", f"Are you absolutely sure you want to wipe\n{sel}?\n\nThis action is IRREVERSIBLE and will destroy all data on the device."):
+            if not messagebox.askyesno("Confirm Wipe", 
+                f"Are you absolutely sure you want to wipe:\n\n{sel}\n\n⚠️  This action is IRREVERSIBLE and will destroy all data."):
                 return
 
         method = self.method_var.get()
@@ -933,10 +1154,10 @@ class WipeApp:
         self.cancel_flag.clear()
 
         if sel == 'Android (ADB)':
-            threading.Thread(target=self.run_android,daemon=True).start()
+            threading.Thread(target=self.run_android, daemon=True).start()
         else:
             device = sel.split()[0]
-            threading.Thread(target=self.run_wipe,args=(device,method,verify),daemon=True).start()
+            threading.Thread(target=self.run_wipe, args=(device, method, verify), daemon=True).start()
 
     def run_android(self):
         self.lock_ui()
@@ -944,7 +1165,7 @@ class WipeApp:
         self.append_log(f"Android wipe finished: {status}, verified: {verified}")
         self.unlock_ui()
 
-    def run_wipe(self,device,method,verify):
+    def run_wipe(self, device, method, verify):
         self.lock_ui()
         log_dir = '/var/log/NullBytes'
         try:
@@ -957,7 +1178,7 @@ class WipeApp:
         status = 'unknown'
         verified_clean = False
         try:
-            self.append_log(f"Starting wipe on {device} with method '{method}' and verification '{verify}'.")
+            self.append_log(f"Starting wipe on {device} with method '{method}' and verification '{verify}'")
             logf.write(f"Wipe initiated at {datetime.now().isoformat()} on {device}\n")
             sysmeta = collect_system_metadata()
             devmeta = collect_device_metadata(device)
@@ -968,18 +1189,17 @@ class WipeApp:
                 self.append_log("WARNING: Could not unmount all partitions. Continuing anyway.")
                 logf.write("WARNING: Could not unmount all partitions. Continuing anyway.\n")
 
-
-            if method=='auto':
+            if method == 'auto':
                 dtype = detect_device_type(device)
-                if dtype=='ata':
-                    success,status = ata_secure_erase(device,logf)
-                elif dtype=='nvme':
-                    success,status = nvme_sanitize(device,logf)
+                if dtype == 'ata':
+                    success, status = ata_secure_erase(device, logf)
+                elif dtype == 'nvme':
+                    success, status = nvme_sanitize(device, logf)
                 else:
-                    self.append_log("Auto method not applicable, falling back to Zero Fill.")
+                    self.append_log("Auto method not applicable, falling back to Zero Fill")
                     logf.write("Auto method not applicable, falling back to Zero Fill.\n")
                     method = 'zero'
-            if method in ('zero','random','shred'):
+            if method in ('zero', 'random', 'shred'):
                 cmd = {
                     'zero': dd_zero_cmd(device),
                     'random': dd_random_cmd(device),
@@ -996,9 +1216,8 @@ class WipeApp:
                     logf.write(line)
                     self.append_log(line.strip())
 
-                    # Check for the "No space left on device" dd error
                     if "No space left on device" in line:
-                        self.append_log("Reached end of device (normal for dd).")
+                        self.append_log("Reached end of device (normal for dd)")
                         success = True
                         try:
                             self.current_process.kill()
@@ -1009,13 +1228,6 @@ class WipeApp:
                     if self.cancel_flag.is_set():
                         success = False
                         break
-
-                # Terminate the process if we broke early
-                # if self.current_process.poll() is None:
-                #     try:
-                #         self.current_process.terminate()
-                #     except Exception:
-                #         pass
 
                 self.current_process.wait()
                 if not success:
@@ -1030,7 +1242,6 @@ class WipeApp:
                     'shred': 'shred_failed'
                 }[method]
 
-
             elif method == 'quick':
                 success, status = quick_wipe_usb(device, logf)
 
@@ -1038,50 +1249,29 @@ class WipeApp:
                 status = "cancelled_by_user"
                 success = False
 
-            # if success:
-            #     self.append_log("Wipe process completed successfully.")
-            #     self.append_log(f"Starting verification: {verify}...")
-            #     logf.write(f"Wipe successful. Starting verification: {verify}.\n")
-            #     if verify=='none':
-            #         verified_clean=False
-            #         self.append_log("Verification skipped.")
-            #     elif verify=='sampled':
-            #         verified_clean = verify_sampled(device,logf)
-            #     elif verify=='full':
-            #         verified_clean = verify_full(device,logf)
-            #
-            #     if verify != 'none':
-            #         self.append_log(f"Verification result: {'PASSED' if verified_clean else 'FAILED'}")
-            #         logf.write(f"Verification result: {'PASSED' if verified_clean else 'FAILED'}\n")
             if success:
-                self.append_log("Wipe process completed successfully.")
-                self.append_log(f"Starting verification: {verify}...")
+                self.append_log("✓ Wipe process completed successfully")
+                self.append_log(f"Starting verification: {verify}")
                 logf.write(f"Wipe successful. Starting verification: {verify}.\n")
-                if verify=='none':
-                    verified_clean=False
-                    self.append_log("Verification skipped.")
-                elif verify=='sampled':
-                    verified_clean = verify_sampled(device,logf)
-                elif verify=='full':
-                    verified_clean = verify_full(device,logf)
+                if verify == 'none':
+                    verified_clean = False
+                    self.append_log("Verification skipped")
+                elif verify == 'sampled':
+                    verified_clean = verify_sampled(device, logf)
+                elif verify == 'full':
+                    verified_clean = verify_full(device, logf)
 
                 if verify != 'none':
-                    self.append_log(f"Verification result: {'PASSED' if verified_clean else 'FAILED'}")
+                    result_text = "✓ PASSED" if verified_clean else "✗ FAILED"
+                    self.append_log(f"Verification result: {result_text}")
                     logf.write(f"Verification result: {'PASSED' if verified_clean else 'FAILED'}\n")
 
-                    # --- Format after successful verification ---
-                    if verified_clean and method in ('zero','random','shred'):
+                    if verified_clean and method in ('zero', 'random', 'shred'):
                         self.append_log("Verification passed. Formatting device for reuse...")
                         logf.write("Verification passed. Formatting device for reuse...\n")
-                        # fmt_ok = format_device(device, logf)
-                        # if fmt_ok:
-                        #     self.append_log("Device formatted successfully (FAT32).")
-                        # else:
-                        #     self.append_log("Formatting failed. Device may not be reusable until formatted manually.")
-
 
             else:
-                self.append_log(f"Wipe failed. Status: {status}")
+                self.append_log(f"✗ Wipe failed. Status: {status}")
                 logf.write(f"Wipe failed with status: {status}\n")
 
             extra = {
@@ -1093,10 +1283,10 @@ class WipeApp:
                     "script_hash": script_sha256()
                 }
             }
-            cert_path = write_certificate(device,method,logf.name,status,verified_clean,extra)
-            self.append_log(f"--- Process Finished ---")
+            cert_path = write_certificate(device, method, logf.name, status, verified_clean, extra)
+            self.append_log(f"─── Process Finished ───")
             self.append_log(f"Certificate written to: {cert_path}")
-            messagebox.showinfo("Wipe Complete", f"Operation on {device} has finished.\n\nCertificate saved to:\n{cert_path}")
+            messagebox.showinfo("Operation Complete", f"Operation on {device} has finished.\n\nCertificate saved to:\n{cert_path}")
             script_dir = os.path.dirname(os.path.abspath(__file__))
             cert_tool_path = os.path.join(script_dir, "..", "Cert_Tool", "main.py")
 
@@ -1108,16 +1298,8 @@ class WipeApp:
                 "--no-upload"
             ])
 
-            # subprocess.run([
-            #     "python3", "../Cert_Tool/main.py",
-            #     "--json", cert_path,
-            #     "--pdf-out", f"{cert_path}.pdf",
-            #     "--qr-out", f"{cert_path}.qr.png",
-            #     "--no-upload"
-            # ])
-
         except Exception as e:
-            self.append_log(f"An unexpected error occurred: {e}")
+            self.append_log(f"✗ Unexpected error: {e}")
             logf.write(f"FATAL ERROR: {e}\n")
         finally:
             logf.close()
