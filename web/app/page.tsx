@@ -91,25 +91,31 @@ export default function HomePage() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link href="/download" className="no-underline">
-                        <Button
-              size="lg"
-              className="bg-teal-500 hover:bg-teal-600 text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-teal-500/30 hover:shadow-teal-500/50 transition-all hover:scale-105"
-            >
-              <Download className="w-5 h-5 mr-2" />
-              Download ISO
-            </Button>
-            
-            
-            </Link>
-
-            <Link href="/guide" className="no-underline">
               <Button
                 size="lg"
-                variant="outline"
-                className="border-teal-500/30 text-teal-400 hover:bg-teal-500/10 px-8 py-6 text-lg rounded-xl backdrop-blur-sm bg-transparent"
+                className="bg-teal-500 hover:bg-teal-600 text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-teal-500/30 hover:shadow-teal-500/50 transition-all hover:scale-105"
+              >
+                <Download className="w-5 h-5 mr-2" />
+                Download ISO
+              </Button>
+            </Link>
+            {/* New Buttons for Business-Model and Educate Users */}
+            <Link href="/business-model" className="no-underline">
+              <Button
+                size="lg"
+                className="bg-cyan-600 hover:bg-cyan-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 transition-all hover:scale-105"
+              >
+                <Award className="w-5 h-5 mr-2" />
+                Business Model
+              </Button>
+            </Link>
+            <Link href="/educate-users" className="no-underline">
+              <Button
+                size="lg"
+                className="bg-green-600 hover:bg-green-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-green-500/30 hover:shadow-green-500/50 transition-all hover:scale-105"
               >
                 <BookOpen className="w-5 h-5 mr-2" />
-                Learn More
+                Educate Users
               </Button>
             </Link>
           </div>
